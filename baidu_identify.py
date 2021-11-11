@@ -1,3 +1,4 @@
+
 import requests
 import base64
 import requests
@@ -24,7 +25,7 @@ def recognition(img_path, access_token):
     # 二进制方式打开图片文件
     with open(img_path, 'rb') as f:
         img = base64.b64encode(f.read())
-    params = {"image":img}
+    params = {"image": img}
     access_token = access_token
     request_url = request_url + "?access_token=" + access_token
     headers = {'content-type': 'application/x-www-form-urlencoded'}
