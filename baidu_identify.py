@@ -1,3 +1,4 @@
+from datetime import datetime
 
 import requests
 import base64
@@ -13,29 +14,48 @@ def get_access_token():
     client_secret 为官网获取的SK
     获取access_token
     """
-    access_token_url = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials' \
-                       '&client_id=DVOep9tBuMwb20bvGDd4erBY&client_secret=tTrGGnTnGnuwAEZY4DQGNMUsKRETRYUD'
-    response = requests.get(access_token_url)
+    params = {
+        "grant_type": "client_credentials",
+        "client_id": "DVOep9tBuMwb20bvGDd4erBY",
+        "client_secret": "tTrGGnTnGnuwAEZY4DQGNMUsKRETRYUD"
+    }
+    access_token_url = 'https://aip.baidubce.com/oauth/2.0/token?'
+    response = requests.get(access_token_url, params=params)
     if response:
         return response.json()["access_token"]
 
 
-def recognition(img_path, access_token):
-    request_url = "https://aip.baidubce.com/rest/2.0/ocr/v1/business_license"
+def recognition(img_path, access_token, request_url):
+    """
+    营业执照api https://aip.baidubce.com/rest/2.0/ocr/v1/business_license
+    身份证api https://aip.baidubce.com/rest/2.0/ocr/v1/idcard
+    :param img_path:
+    :param access_token:
+    :param request_url:
+    :return:
+    """
     # 二进制方式打开图片文件
     with open(img_path, 'rb') as f:
         img = base64.b64encode(f.read())
-    params = {"image": img}
+    # api不同请求参数有差异，需要判断
+    if "business_license" in request_url:
+        params = {"image": img}
+    elif "idcard" in request_url:
+        params = {"id_card_side": "front", "image": img}
     access_token = access_token
     request_url = request_url + "?access_token=" + access_token
     headers = {'content-type': 'application/x-www-form-urlencoded'}
     response = requests.post(request_url, data=params, headers=headers)
     if response:
-        print(response.json())
         return response.json()
 
 
-def get_detail(json_data):
+def get_license(json_data):
+    """
+    解析营业执照json
+    :param json_data:  识别的json数据
+    :return:
+    """
     result = json_data["words_result"]
     # 单位名称
     company_name = result["单位名称"].get("words")
@@ -51,12 +71,42 @@ def get_detail(json_data):
         "company_name": company_name,
         "social_credit_code": social_credit_code,
         "legal_person": legal_person,
-        "date_of_establishment": date_of_establishment,
+        "date_of_establishment": datetime.strptime(date_of_establishment, "%Y年%m月%d日"),
         "address": address,
+    }
+
+
+def get_id_card(id_card_json):
+    """
+    解析身份证json数据
+    :param id_card_json:
+    :return:
+    """
+    result = id_card_json["words_result"]
+    # 姓名
+    name = result["姓名"]["words"]
+    # 民族
+    ethnic = result["民族"]["words"]
+    # 住址
+    living = result["住址"]["words"]
+    # 公民身份号码
+    citizen_id_number = result["公民身份号码"]["words"]
+    # 出生
+    born = result["出生"]["words"]
+    # 性别
+    sex = result["性别"]["words"]
+    return {
+        "name": name,
+        "ethnic": ethnic,
+        "living": living,
+        "citizen_id_number": citizen_id_number,
+        "born": born,
+        "sex": sex,
     }
 
 
 if __name__ == '__main__':
     token = get_access_token()
-    data = recognition('安吉蓝城电子商务有限公司.jpeg', token)
-    print(get_detail(data))
+    data = recognition('2.jpg', token, "https://aip.baidubce.com/rest/2.0/ocr/v1/idcard")
+    print(data)
+    print(get_id_card(data))

@@ -32,6 +32,3 @@ class CrawlerBase:
         assert res.status_code == 200
         return res
 
-
-if __name__ == '__main__':
-    pass
