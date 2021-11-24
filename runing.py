@@ -21,14 +21,14 @@ def run():
         en = Enterprise()
         # 获取企企查企业信息
         find = en.main(messages["company_name"])
-        # print(find)
+        print(find)
         post = PostCode("https://www.youbianku.cn/api/youbianku_zhannei_search.php?")
         # 邮编
         post_code = post.parse_code(messages["address"])
         for k, v in find.items():
             messages[k] = v
         messages["post_code"] = post_code
-        # print(messages)
+        print(messages)
         yield messages
 
 
@@ -60,17 +60,11 @@ def main():
             table_data["logic_address"] = "否"
         # 经营情况
         table_data["business_conditions"] = "暂时还未实现"
+        table_data["registered_address"] = data["registered_address"]
         company_table(rows, table_data)
         rows += 1
         print(table_data)
-        time.sleep(5)
-        # upset = []
-        # for k, v in table_data.items():
-        #     results = "{0}='{1}'".format(k, v)
-        #     upset.append(results)
-        # par = ', '.join(upset)
-        # print(par)
-        # company_table(rows, par)
+        time.sleep(10)
         print('\n')
 
 

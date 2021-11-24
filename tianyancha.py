@@ -1,9 +1,9 @@
 from datetime import datetime
-
 import requests
 from retry import retry
 from lxml import etree
 
+from utils import MongodbIP
 from Ua import ua
 import config
 
@@ -33,12 +33,15 @@ class Enterprise(object):
         }
 
     proxies = {
-        "https": "114.104.184.178: 9005"
+        'https': 'https://183.220.195.163:80'
     }
 
-    @retry(tries=3, delay=10)
+    @retry(delay=10)
     def make_response(self, url, headers, params=None):
-        res = requests.get(url, headers=headers, params=params, proxies=self.proxies)
+        try:
+            res = requests.get(url, headers=headers, params=params, proxies=self.proxies, timeout=3)
+        except requests.exceptions.ProxyError as e:
+            raise e
         res.encoding = "utf-8"
         print(f"状态码：{res.status_code}")
         assert res.status_code == 200
@@ -71,14 +74,18 @@ class Enterprise(object):
                 "area": area
             }
 
+    @retry(delay=10)
     def main(self, parameter_key):
         res = self.make_response(self.link_config[0], self.link_config[1], self.key(parameter_key))
         link = self.parse_link(res)
         detail = self.make_response(link, self.detail_config)
-        return self.parse_detail(detail)
+        if self.parse_detail(detail):
+            return self.parse_detail(detail)
+        else:
+            raise Exception
 
 
 if __name__ == '__main__':
     tian = Enterprise()
     keys = "安吉蓝城电子商务有限公司"
-    tian.main(keys)
+    print(tian.main(keys))
