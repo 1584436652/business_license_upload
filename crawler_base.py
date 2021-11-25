@@ -28,7 +28,6 @@ class CrawlerBase:
         else:
             res = requests.post(kwargs["url"], headers=kwargs["headers"], data=kwargs["data"])
         res.encoding = "utf-8"
-        print(f"状态码：{res.status_code}")
         assert res.status_code == 200
         return res
 

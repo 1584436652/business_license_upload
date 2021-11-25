@@ -1,7 +1,9 @@
-from datetime import datetime
 import requests
 import base64
 import requests
+
+from datetime import datetime
+from utils import file_size
 '''
 营业执照识别
 '''
@@ -24,6 +26,13 @@ def get_access_token():
         return response.json()["access_token"]
 
 
+def par(request_url, img):
+    if "business_license" in request_url:
+        return {"image": img}
+    elif "idcard" in request_url:
+        return {"id_card_side": "front", "image": img}
+
+
 def recognition(img_path, access_token, request_url):
     """
     营业执照api https://aip.baidubce.com/rest/2.0/ocr/v1/business_license
@@ -33,18 +42,15 @@ def recognition(img_path, access_token, request_url):
     :param request_url:
     :return:
     """
+    file_size(img_path)
     # 二进制方式打开图片文件
     with open(img_path, 'rb') as f:
         img = base64.b64encode(f.read())
     # api不同请求参数有差异，需要判断
-    if "business_license" in request_url:
-        params = {"image": img}
-    elif "idcard" in request_url:
-        params = {"id_card_side": "front", "image": img}
     access_token = access_token
     request_url = request_url + "?access_token=" + access_token
     headers = {'content-type': 'application/x-www-form-urlencoded'}
-    response = requests.post(request_url, data=params, headers=headers)
+    response = requests.post(request_url, data=par(request_url, img), headers=headers)
     if response:
         return response.json()
 
@@ -77,7 +83,7 @@ def get_license(json_data):
 
 def get_id_card(id_card_json):
     """
-    解析身份证json数据
+    解析身份证正面json数据
     :param id_card_json:
     :return:
     """
@@ -104,8 +110,29 @@ def get_id_card(id_card_json):
     }
 
 
+def get_id_card_anti(id_card_json):
+    """
+        解析身份证反面json数据
+        :param id_card_json:
+        :return:
+    """
+    result = id_card_json["words_result"]
+    # 失效日期
+    expiration_date = result["失效日期"]["words"]
+    # 签发机关
+    issuing_authority = result["签发机关"]["words"]
+    # 签发日期
+    date_of_issue = result["签发日期"]["words"]
+
+    return {
+        "expiration_date": expiration_date,
+        "issuing_authority": issuing_authority,
+        "date_of_issue": date_of_issue,
+    }
+
+
 if __name__ == '__main__':
     token = get_access_token()
-    data = recognition('2.jpg', token, "https://aip.baidubce.com/rest/2.0/ocr/v1/idcard")
+    data = recognition('柳林县荞歌红电子商务有限公司.png', token, "https://aip.baidubce.com/rest/2.0/ocr/v1/business_license")
     print(data)
-    print(get_id_card(data))
+    # print(get_id_card(data))

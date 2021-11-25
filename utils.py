@@ -1,7 +1,6 @@
 import os
-from random import choice
-
-from pymongo import MongoClient
+import re
+from PIL import Image
 
 
 def find_file(file_path="d:/测试"):
@@ -20,80 +19,75 @@ def walk_file():
             print(f"共{len(files)}张营业执照")
             for f in files:
                 yield os.path.join(root, f)
-
-            # # 遍历所有的文件夹
-            # for d in dirs:
-            #     print(os.path.join(root, d))
     except TypeError as e:
         print("当前目录下没有｛营业执照｝文件")
         raise e
 
 
 def get_files():
-    file = find_file()
-    mg_dict = {}
-    di = []
+    file1 = find_file()
+    gm = []
     try:
-        for root, dirs, files in os.walk(file):
-            for f1 in files:
-                print(os.path.join(root, f1))
-            for f2 in dirs:
-                print(os.path.join(root, f2))
-
-
-
-
-            #
-            # print(dirs)
-            mg = []
+        for root, dirs, files in os.walk(file1):
             # root 表示当前正在访问的文件夹路径
             # dirs 表示该文件夹下的子目录名list
             # files 表示该文件夹下的文件list
-            # print(f"共{len(files)}张营业执照"
-            # for d in dirs:
-            #     print(d)
-            # for f in files:
-            #     print(f)
-            #     mg.append(os.path.join(root, f))
-                # if mg:
-                #     mg_dict[d] = mg
-            # 遍历所有的文件夹
-            # for d in dirs:
-            #     print(d)
-        # print(mg_dict)
-
+            for f in files:
+                gm.append(os.path.join(root, f))
+        return gm
     except TypeError as e:
         print("当前目录下没有｛营业执照｝文件")
         raise e
 
 
-class MongodbIP:
+def set_files():
+    gm_name = {}
+    f = get_files()
+    for fa in f:
+        file_name = get_file_name(fa)
+        if file_name not in gm_name:
+            gm_name[file_name] = [fa]
+        else:
+            gm_name[file_name].append(fa)
+    return gm_name
+
+
+def get_file_name(names):
     """
-    代理ip
+    提取文件夹名
+    :param names:
+    :return:
     """
+    co = re.findall(r'[\\](.+?)[\\]', names, re.S)[0]
+    co = re.sub("[A-Za-z0-9\!\%\[\]\,\。]", "", co)
+    return co
 
-    def __init__(self):
-        # mongodb数据库操作对象
-        self.client = MongoClient(host='127.0.0.1', port=27017)
-        # 数据插⼊的数据库与集合
-        self.coll = self.client["IP"]["IPAddressPool"]
-        self.__ip_library = []
 
-    @property
-    def ip_library(self):
-        for ip in self.coll.find({}, {'_id': 0}):
-            self.__ip_library.append(ip)
-        return self.__ip_library
+def file_size(size):
+    if os.path.getsize(size) > 9000000:
+        resize_image(size, size)
 
-    @property
-    def ip(self):
-        use_ip = choice(self.ip_library)
-        print("当前使用ip：{}".format(use_ip))
-        return use_ip
+
+def resize_image(pass_in, efferent, scale=0.6):
+    """
+    :param pass_in: 输入图片
+    :param efferent: 输出图片
+    :param scale:
+    :return:
+    """
+    img = Image.open(pass_in)
+    width = int(img.size[0] * scale)
+    height = int(img.size[1] * scale)
+    img_type = img.format
+    out = img.resize((width, height), Image.ANTIALIAS)
+    # 第二个参数：
+    # Image.NEAREST ：低质量
+    # Image.BILINEAR：双线性
+    # Image.BICUBIC ：三次样条插值
+    # Image.ANTIALIAS：高质量
+    out.save(efferent, img_type)
 
 
 if __name__ == '__main__':
-    # for picture in walk_file():
-    #     print(picture)
-    get_files()
-
+    print(file_size('柳林县荞歌红电子商务有限公司.png'))
+    print(type(file_size('柳林县荞歌红电子商务有限公司.png')))

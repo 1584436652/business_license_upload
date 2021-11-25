@@ -4,7 +4,8 @@ from openpyxl import Workbook
 wb = Workbook()
 ws = wb.active
 ws.append(["公司名称", "核准日期", "是否和最新的核准日期一致", "法人", "是否和最新的法人一致",
-           "公司地址", "邮编", "是否和最新的地址一致", "是否经营异常", "网上地址"])
+           "公司地址", "邮编", "是否和最新的地址一致", "是否经营异常", "网上地址", "身份证名字",
+           "民族", "性别", "居住地址", "身份证号码", "签发机关", "签发日期", "失效日期"])
 
 
 def company_table(rows, data: dict):
@@ -24,5 +25,14 @@ def company_table(rows, data: dict):
     ws[f"H{rows}"] = data["logic_address"]
     ws[f"I{rows}"] = data["business_conditions"]
     ws[f"J{rows}"] = data["registered_address"]
+    ws[f"K{rows}"] = data["name"]
+    ws[f"L{rows}"] = data["ethnic"]
+    ws[f"M{rows}"] = data["sex"]
+    ws[f"N{rows}"] = data["living"]
+    ws[f"O{rows}"] = data["citizen_id_number"]
+    ws[f"P{rows}"] = data["issuing_authority"]
+    ws[f"Q{rows}"] = data["date_of_issue"]
+    ws[f"R{rows}"] = data["expiration_date"]
     wb.save("./test.xlsx")
+
 

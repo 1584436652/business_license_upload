@@ -3,7 +3,6 @@ import requests
 from retry import retry
 from lxml import etree
 
-from utils import MongodbIP
 from Ua import ua
 import config
 
@@ -33,7 +32,7 @@ class Enterprise(object):
         }
 
     proxies = {
-        'https': 'https://183.220.195.163:80'
+        'https': "https://183.220.195.163:80"
     }
 
     @retry(delay=10)
@@ -43,7 +42,6 @@ class Enterprise(object):
         except requests.exceptions.ProxyError as e:
             raise e
         res.encoding = "utf-8"
-        print(f"状态码：{res.status_code}")
         assert res.status_code == 200
         return res.text
 
@@ -57,6 +55,8 @@ class Enterprise(object):
     @staticmethod
     def parse_detail(detail_res):
         detail_html = etree.HTML(detail_res)
+        manage = detail_html.xpath('//div[@class="nheader"]//div[@class="title"]/div[1]/span[1]/span/text()')[0]
+        print(manage)
         items = detail_html.xpath('//section[@id="cominfo"]/div[2]/table')
         for item in items:
             # 核准日期
@@ -71,18 +71,15 @@ class Enterprise(object):
                 "approved_date": datetime.strptime(approved_date, "%Y-%m-%d"),
                 "legal_persons": legal_persons,
                 "registered_address": registered_address,
-                "area": area
+                "area": area,
+                "business_conditions": manage
             }
 
-    @retry(delay=10)
     def main(self, parameter_key):
         res = self.make_response(self.link_config[0], self.link_config[1], self.key(parameter_key))
         link = self.parse_link(res)
         detail = self.make_response(link, self.detail_config)
-        if self.parse_detail(detail):
-            return self.parse_detail(detail)
-        else:
-            raise Exception
+        return self.parse_detail(detail)
 
 
 if __name__ == '__main__':
