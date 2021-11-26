@@ -123,7 +123,6 @@ def get_id_card_anti(id_card_json):
     issuing_authority = result["签发机关"]["words"]
     # 签发日期
     date_of_issue = result["签发日期"]["words"]
-
     return {
         "expiration_date": expiration_date,
         "issuing_authority": issuing_authority,

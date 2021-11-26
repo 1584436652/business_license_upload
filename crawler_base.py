@@ -12,14 +12,6 @@ class CrawlerBase:
             'Referer': 'https://www.youbianku.com/'
         }
 
-    # @property
-    # def config(self):
-    #     headers = {
-    #         'User-Agent': ua(),
-    #         'Referer': 'https://www.youbianku.com/'
-    #     }
-    #     return [self.url, headers]
-
     @retry(tries=3, delay=10)
     def make_response(self, params=None, **kwargs):
         _method = "GET" if not kwargs["method"] else kwargs["method"]

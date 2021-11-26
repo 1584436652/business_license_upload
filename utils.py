@@ -64,7 +64,8 @@ def get_file_name(names):
 
 
 def file_size(size):
-    if os.path.getsize(size) > 9000000:
+    if os.path.getsize(size) > 7000000:
+        print(f"{size}文件大小超出规定大小,正在处理图片")
         resize_image(size, size)
 
 

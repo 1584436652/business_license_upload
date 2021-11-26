@@ -32,7 +32,7 @@ def image_information():
                 elif "失效日期" in data_w:
                     messages_anti = get_id_card_anti(data)
                     mess.append(messages_anti)
-            time.sleep(1.5)
+            time.sleep(1)
         yield mess
 
 
@@ -45,6 +45,7 @@ def merge_information(merge):
     en = Enterprise()
     # 获取企企查企业信息
     find = en.main(messages["company_name"])
+    print(find)
     post = PostCode("https://www.youbianku.cn/api/youbianku_zhannei_search.php?")
     # 获取邮编
     post_code = post.parse_code(messages["address"])
@@ -93,6 +94,7 @@ def main():
         table_data["issuing_authority"] = data["issuing_authority"]
         table_data["date_of_issue"] = data["date_of_issue"]
         table_data["expiration_date"] = data["expiration_date"]
+        table_data["approved_date"] = data["approved_date"]
         company_table(rows, table_data)
         rows += 1
         print("保存成功")

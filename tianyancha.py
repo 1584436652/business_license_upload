@@ -1,5 +1,6 @@
-from datetime import datetime
 import requests
+from random import choice
+from datetime import datetime
 from retry import retry
 from lxml import etree
 
@@ -31,9 +32,7 @@ class Enterprise(object):
             "key": key
         }
 
-    proxies = {
-        'https': "https://183.220.195.163:80"
-    }
+    proxies = choice(config.PROXIES)
 
     @retry(delay=10)
     def make_response(self, url, headers, params=None):

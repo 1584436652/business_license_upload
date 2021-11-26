@@ -5,7 +5,7 @@ wb = Workbook()
 ws = wb.active
 ws.append(["公司名称", "核准日期", "是否和最新的核准日期一致", "法人", "是否和最新的法人一致",
            "公司地址", "邮编", "是否和最新的地址一致", "是否经营异常", "网上地址", "身份证名字",
-           "民族", "性别", "居住地址", "身份证号码", "签发机关", "签发日期", "失效日期"])
+           "民族", "性别", "居住地址", "身份证号码", "签发机关", "签发日期", "失效日期", "网上核准日期"])
 
 
 def company_table(rows, data: dict):
@@ -33,6 +33,7 @@ def company_table(rows, data: dict):
     ws[f"P{rows}"] = data["issuing_authority"]
     ws[f"Q{rows}"] = data["date_of_issue"]
     ws[f"R{rows}"] = data["expiration_date"]
+    ws[f"S{rows}"] = data["approved_date"]
     wb.save("./test.xlsx")
 
 
