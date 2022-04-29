@@ -16,9 +16,9 @@ def get_access_token():
     获取access_token
     """
     params = {
-        "grant_type": "client_credentials",
-        "client_id": "DVOep9tBuMwb20bvGDd4erBY",
-        "client_secret": "tTrGGnTnGnuwAEZY4DQGNMUsKRETRYUD"
+        "grant_type": "",
+        "client_id": "",
+        "client_secret": ""
     }
     access_token_url = 'https://aip.baidubce.com/oauth/2.0/token?'
     response = requests.get(access_token_url, params=params)
